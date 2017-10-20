@@ -171,5 +171,64 @@ class DropPartsScriptTestCase(ScriptTestCase, TestCase):
         self.assertRegex(sys.stdout.getvalue().strip(), "^You have to pass ")
 
 
+class CreatePartsScriptTestCase(ScriptTestCase, TestCase):
+    """Test class for CreatePartsScript."""
+
+    def setUp(self):
+        """Set default args and set up log handler."""
+        self.script_args = ["-c", "whatever"]
+        self.script_class = CreatePartsScript
+
+        self.log_handler = LogCapture()
+
+    def tearDown(self):
+        """Throw away log handler."""
+        self.log_handler.uninstall()
+
+    @patch('psycopg2.connect')
+    @patch('builtins.open',
+           mock.mock_open(read_data='{"database": {"host": "myhost", "user": "myuser", "database": "db"}}'))
+    def execute(self, error, mock_connect):
+        """Call script execute function with various results and/or errors."""
+        mock_cursor = mock_connect().__enter__().cursor().__enter__()
+        mock_cursor.fetchall.return_value = [["table_1"], ["table_2"]]
+        if error is not None:
+            mock_cursor.execute.side_effect = error
+
+        script = CreatePartsScript(self.script_args + ["-d", "2054-01"])
+        script.read_config()
+        script.connect_db()
+
+        if error is not None:
+            with self.assertRaises(FatalScriptError) as err:
+                script.execute()
+            self.assertEqual(type(err.exception.error), error)
+        else:
+            script.execute()
+            mock_cursor.mogrify.assert_any_call(
+                "SELECT create_parts(%(from)s::timestamp, %(to)s::timestamp)",
+                {
+                    'from': '2054-01-01',
+                    'to': '2054-01-01',
+                }
+            )
+            mock_cursor.mogrify.assert_any_call(
+                "GRANT SELECT ON %(table)s TO view",
+                {'table': 'table_1'}
+            )
+            mock_cursor.mogrify.assert_any_call(
+                "GRANT SELECT ON %(table)s TO view",
+                {'table': 'table_2'}
+            )
+
+    def test_execute_ok(self):
+        """Test execute() that runs OK."""
+        self.execute(None)
+
+    def test_execute_error(self):
+        """Test execute() that throws DatabaseError."""
+        self.execute(DatabaseError)
+
+
 if __name__ == '__main__':
     unittest.main()

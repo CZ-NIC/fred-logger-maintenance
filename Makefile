@@ -1,4 +1,4 @@
-APP = logger_maintenance drop_parts.py tests.py
+APP = logger_maintenance drop_parts.py create_parts.py tests.py
 
 .PHONY: default isort check-isort check-flake8 check-doc check-all
 
