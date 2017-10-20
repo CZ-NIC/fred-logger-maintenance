@@ -11,4 +11,6 @@ setup(name='fred-logger-maintenance',
       python_requires='>=3.5',
       long_description="CZ.NIC LOGGER_MAINTENANCE",
       packages=find_packages(),
+
+      scripts=['drop_parts.py'],
       )

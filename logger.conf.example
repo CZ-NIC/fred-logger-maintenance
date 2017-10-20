@@ -1,0 +1,8 @@
+{
+    "database": {
+        "host": "logdb-s-01.test.nic.cz",
+        "port": "5432",
+        "user": "logd",
+        "database": "fredlog"
+    }
+}

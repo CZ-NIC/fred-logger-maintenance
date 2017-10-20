@@ -1,4 +1,4 @@
-APP = logger_maintenance *.py
+APP = logger_maintenance drop_parts.py tests.py
 
 .PHONY: default isort check-isort check-flake8 check-doc check-all
 
@@ -17,3 +17,9 @@ check-doc:
 
 check-flake8:
 	flake8 --config=.flake8 --format=pylint --show-source ${APP}
+
+test:
+	python tests.py
+
+test-coverage:
+	coverage run --source . --omit setup.py,tests.py tests.py

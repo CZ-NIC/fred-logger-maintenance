@@ -1,0 +1,3 @@
+mock
+psycopg2>=2.7
+testfixtures
