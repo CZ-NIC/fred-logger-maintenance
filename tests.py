@@ -2,7 +2,6 @@
 
 import json
 import sys
-import unittest
 import unittest.mock as mock
 from datetime import date
 from io import StringIO
@@ -43,7 +42,7 @@ class ScriptTestCase(object):
         """Test init with wrong arguments."""
         with self.assertRaises(SystemExit):
             self.script_class([])
-            self.assertRegex(sys.stderr.getvalue().strip(), "^usage: ")
+        self.assertRegex(sys.stderr.getvalue().strip(), "^usage: ")
         with self.assertRaises(FatalScriptError):
             with self.assertRaises(ValueError):
                 self.script_class(self.script_args + ["-d", "0000-00-00"])
@@ -228,7 +227,3 @@ class CreatePartsScriptTestCase(ScriptTestCase, TestCase):
     def test_execute_error(self):
         """Test execute() that throws DatabaseError."""
         self.execute(DatabaseError)
-
-
-if __name__ == '__main__':
-    unittest.main()
