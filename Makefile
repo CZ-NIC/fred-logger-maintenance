@@ -22,4 +22,4 @@ test:
 	python tests.py
 
 test-coverage:
-	coverage run --source . --omit setup.py,tests.py tests.py
+	coverage3 run --source . --omit setup.py --branch -m unittest tests.py 
