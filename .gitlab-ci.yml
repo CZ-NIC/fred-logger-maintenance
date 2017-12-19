@@ -1,0 +1,80 @@
+stages:
+    - analysis
+    - test
+    - coverage
+
+########################################################################################################################
+# Basic declarations
+.requires-python: &requires-python
+    tags:
+        - python
+
+.python3-xenial: &python3-xenial
+    image: cznic/ubuntu_xenial_python3:latest
+
+.install-dependencies: &install-dependencies
+    before_script:
+        - pip3 list
+        # Install package dependencies
+        - cat requirements.txt
+        - pip3 install -r requirements.txt $EXTRA_REQUIREMENTS
+        - pip3 list
+
+.test: &test
+    <<: *python3-xenial
+    <<: *install-dependencies
+    stage: test
+    script:
+        - mkdir coverage
+        - make test-coverage
+    artifacts:
+        expire_in: 1d
+        paths:
+        - coverage/
+    variables:
+        COVERAGE_FILE: "coverage/.coverage.$CI_BUILD_ID"
+        EXTRA_REQUIREMENTS: "-r requirements-dev.txt coverage"
+
+########################################################################################################################
+# Individual jobs
+isort:
+    <<: *requires-python
+    <<: *python3-xenial
+    stage: analysis
+    before_script:
+        - pip3 install isort
+        - pip3 list
+    script: "make check-isort"
+
+flake8:
+    <<: *requires-python
+    <<: *python3-xenial
+    stage: analysis
+    before_script:
+        - pip3 install flake8
+        - pip3 list
+    script: "make check-flake8"
+
+pydocstyle:
+    <<: *requires-python
+    <<: *python3-xenial
+    stage: analysis
+    before_script:
+        - pip3 install pydocstyle
+        - pip3 list
+    script: "make check-doc"
+
+test:
+    <<: *test
+
+coverage-report:
+    <<: *requires-python
+    <<: *python3-xenial
+    stage: coverage
+    before_script:
+        - pip3 install coverage
+        - pip3 list
+    script:
+        - coverage3 combine coverage/
+        - coverage3 report --include=tests.py --fail-under=100
+        - coverage3 report --omit=tests.py

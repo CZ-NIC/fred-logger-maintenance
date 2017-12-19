@@ -5,21 +5,21 @@ APP = logger_maintenance drop_parts.py create_parts.py tests.py
 default: check-all
 
 isort:
-	isort --recursive ${APP}
+	python3 -m isort --recursive ${APP}
 
 check-all: check-isort check-flake8 check-doc
 
 check-isort:
-	isort --recursive --check-only --diff ${APP}
+	python3 -m isort --recursive --check-only --diff ${APP}
 
 check-doc:
-	pydocstyle ${APP}
+	python3 -m pydocstyle ${APP}
 
 check-flake8:
-	flake8 --config=.flake8 --format=pylint --show-source ${APP}
+	python3 -m flake8 --config=.flake8 --format=pylint --show-source ${APP}
 
 test:
-	python tests.py
+	python3 -m unittest tests.py
 
 test-coverage:
-	coverage run --source . --omit setup.py,tests.py tests.py
+	coverage3 run --source . --omit setup.py --branch -m unittest tests.py 
