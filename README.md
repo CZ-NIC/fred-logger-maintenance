@@ -16,7 +16,7 @@ Project contains scripts for database partitions manipulation in logger componen
     Path to configuration file (see *JSON configuration*).
   * `-d`, `--from-date`
     Date from which should be partitions created / deleted.
-  * `--end-date`
+  * `--to-date`
     Date to which should be partitions created / deleted.
     If ommited, `--from-date` is used.
   * `-s`, `--service`
