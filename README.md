@@ -1,5 +1,7 @@
 # logger-maintenance
 
+FRED utilities: Scripts for audit-log database maintanence.
+
 Project contains scripts for database partitions manipulation in logger component.
 
 ## Contained scripts
