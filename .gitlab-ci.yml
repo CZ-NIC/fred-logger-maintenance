@@ -64,6 +64,14 @@ pydocstyle:
         - pip3 list
     script: "make check-doc"
 
+licensing:
+    <<: *python3-xenial
+    stage: analysis
+    before_script:
+        - git clone git@gitlab.office.nic.cz:internal-tools/license-check.git --single-branch --depth 1
+    script:
+        - ./license-check/license-check.sh -v
+
 test:
     <<: *test
 
