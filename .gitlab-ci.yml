@@ -20,6 +20,12 @@ stages:
     tags:
         - dind
 
+image:ubuntu:xenial:
+    <<: *image
+    variables:
+        IMAGE_NAME: ubuntu:xenial
+        IMAGE_TAG: $CI_REGISTRY_IMAGE/$IMAGE_NAME
+
 image:ubuntu:bionic:
     <<: *image
     variables:
@@ -28,6 +34,9 @@ image:ubuntu:bionic:
 
 ########################################################################################################################
 # Basic declarations
+.ubuntu-xenial: &ubuntu-xenial
+    image: "$CI_REGISTRY/$CI_PROJECT_PATH/ubuntu:xenial"
+
 .ubuntu-bionic: &ubuntu-bionic
     image: "$CI_REGISTRY/$CI_PROJECT_PATH/ubuntu:bionic"
 
@@ -91,6 +100,10 @@ licensing:
         - ./license-check/license-check.sh -v
     variables:
         SRC_DIR: /usr/local/env
+
+test:xenial:
+    <<: *test
+    <<: *ubuntu-xenial
 
 test:bionic:
     <<: *test
