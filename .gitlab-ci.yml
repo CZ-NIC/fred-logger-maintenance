@@ -1,16 +1,44 @@
 stages:
+    - image
     - analysis
     - test
     - coverage
 
 ########################################################################################################################
-# Basic declarations
-.requires-python: &requires-python
+# Docker
+.image: &image
+    stage: image
+    before_script:
+        - docker info
+    script:
+        # Login to GitLab container registry https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#using-the-gitlab-container-registry
+        - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+        # Build image using Docker caching, see https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#making-docker-in-docker-builds-faster-with-docker-layer-caching
+        - docker pull "$IMAGE_TAG" || true
+        - docker build --cache-from "$IMAGE_TAG" -t "$IMAGE_TAG" "docker/$IMAGE_NAME"
+        - docker push "$IMAGE_TAG"
     tags:
-        - python
+        - dind
 
-.python3-xenial: &python3-xenial
-    image: $CI_REGISTRY/ginger/base/ubuntu_xenial_python3:latest
+image:ubuntu:xenial:
+    <<: *image
+    variables:
+        IMAGE_NAME: ubuntu:xenial
+        IMAGE_TAG: $CI_REGISTRY_IMAGE/$IMAGE_NAME
+
+image:ubuntu:bionic:
+    <<: *image
+    variables:
+        IMAGE_NAME: ubuntu:bionic
+        IMAGE_TAG: $CI_REGISTRY_IMAGE/$IMAGE_NAME
+
+########################################################################################################################
+# Basic declarations
+.ubuntu-xenial: &ubuntu-xenial
+    image: "$CI_REGISTRY/$CI_PROJECT_PATH/ubuntu:xenial"
+
+.ubuntu-bionic: &ubuntu-bionic
+    image: "$CI_REGISTRY/$CI_PROJECT_PATH/ubuntu:bionic"
 
 .install-dependencies: &install-dependencies
     before_script:
@@ -21,9 +49,7 @@ stages:
         - pip3 list
 
 .test: &test
-    <<: *python3-xenial
     <<: *install-dependencies
-    stage: test
     script:
         - mkdir coverage
         - make test-coverage
@@ -38,8 +64,7 @@ stages:
 ########################################################################################################################
 # Individual jobs
 isort:
-    <<: *requires-python
-    <<: *python3-xenial
+    <<: *ubuntu-bionic
     stage: analysis
     before_script:
         - pip3 install isort
@@ -47,8 +72,7 @@ isort:
     script: "make check-isort"
 
 flake8:
-    <<: *requires-python
-    <<: *python3-xenial
+    <<: *ubuntu-bionic
     stage: analysis
     before_script:
         - pip3 install flake8
@@ -56,8 +80,7 @@ flake8:
     script: "make check-flake8"
 
 pydocstyle:
-    <<: *requires-python
-    <<: *python3-xenial
+    <<: *ubuntu-bionic
     stage: analysis
     before_script:
         - pip3 install pydocstyle
@@ -65,19 +88,29 @@ pydocstyle:
     script: "make check-doc"
 
 licensing:
-    <<: *python3-xenial
+    <<: *ubuntu-bionic
     stage: analysis
     before_script:
+        # Set up SSH key for access to gitlab repositories
+        - install -m 700 -d $HOME/.ssh
+        - install -m 600 $SRC_DIR/{id_rsa,id_rsa.pub,known_hosts} $HOME/.ssh/
+        # Clone the licence check
         - git clone git@gitlab.office.nic.cz:internal-tools/license-check.git --single-branch --depth 1
     script:
         - ./license-check/license-check.sh -v
+    variables:
+        SRC_DIR: /usr/local/env
 
-test:
+test:xenial:
     <<: *test
+    <<: *ubuntu-xenial
+
+test:bionic:
+    <<: *test
+    <<: *ubuntu-bionic
 
 coverage-report:
-    <<: *requires-python
-    <<: *python3-xenial
+    <<: *ubuntu-bionic
     stage: coverage
     before_script:
         - pip3 install coverage
