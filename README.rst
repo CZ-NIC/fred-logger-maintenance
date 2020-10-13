@@ -1,3 +1,4 @@
+==================
 Logger-maintenance
 ==================
 
@@ -6,7 +7,7 @@ FRED utilities: Scripts for audit-log database maintanence.
 Project contains scripts for database partitions manipulation in logger component.
 
 Contained scripts
------------------
+=================
 
 **create_parts.py**
 
@@ -36,7 +37,7 @@ Contained scripts
   (\ ``drop_parts.py`` only).
 
 JSON configuration
-------------------
+==================
 
 Example configurations is available in ``logger.conf.example``. Available
 configuration items:
