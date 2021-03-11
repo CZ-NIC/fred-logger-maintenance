@@ -12,6 +12,5 @@ RUN apt-get --yes update \
  && apt-get install --yes --no-install-recommends \
     python3-pip \
  && rm -rf /var/lib/apt/lists/* \
- && pip3 install --upgrade \
-    pip \
+ && pip3 install --upgrade 'pip<21.0' \
  && apt-get purge --yes python3-pip
