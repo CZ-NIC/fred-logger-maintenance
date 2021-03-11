@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -228,14 +228,6 @@ class CreatePartsScriptTestCase(ScriptTestCase, TestCase):
                     'from': '2054-01-01',
                     'to': '2054-01-01',
                 }
-            )
-            mock_cursor.mogrify.assert_any_call(
-                "GRANT SELECT ON %(table)s TO view",
-                {'table': 'table_1'}
-            )
-            mock_cursor.mogrify.assert_any_call(
-                "GRANT SELECT ON %(table)s TO view",
-                {'table': 'table_2'}
             )
 
     def test_execute_ok(self):

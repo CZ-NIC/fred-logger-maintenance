@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) 2017-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -83,25 +83,6 @@ class CreatePartsScript(LoggerMaintenanceScript):
                     )
                     logging.info(sql_func.decode())
                     cursor.execute(sql_func)
-
-                    # Grant privileges to all new tables
-                    cur_date = self.args.date_from
-                    while cur_date <= self.args.date_to:
-                        sql_select = cursor.mogrify(
-                            "SELECT relname FROM pg_stat_user_tables WHERE schemaname='public' "
-                            "AND relname LIKE %(date_suffix)s",
-                            {'date_suffix': '%' + cur_date.strftime("_%y_%m")}
-                        )
-                        logging.debug(sql_select.decode())
-                        cursor.execute(sql_select)
-                        tables = cursor.fetchall()
-                        for table in tables:
-                            sql_grant = cursor.mogrify(
-                                "GRANT SELECT ON %(table)s TO view",
-                                {'table': table[0]}
-                            )
-                            logging.info(sql_grant.decode())
-                            cur_date = add_months(cur_date, 1)
 
                 except DatabaseError as err:
                     logging.error("DatabaseError: " + str(err))
