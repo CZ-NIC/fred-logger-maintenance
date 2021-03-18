@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright (C) 2017-2019  CZ.NIC, z. s. p. o.
+# Copyright (C) 2017-2021  CZ.NIC, z. s. p. o.
 #
 # This file is part of FRED.
 #
@@ -24,7 +24,7 @@ from setuptools import find_packages, setup
 
 def readme():
     """Return content of README file."""
-    with open(os.path.join(os.path.dirname(__file__), 'README.md'), encoding='utf-8') as f:
+    with open(os.path.join(os.path.dirname(__file__), 'README.rst'), encoding='utf-8') as f:
         return f.read()
 
 
@@ -36,7 +36,6 @@ setup(name='fred-logger-maintenance',
       platforms=['posix'],
       python_requires='>=3.5',
       long_description=readme(),
-      long_description_content_type='text/markdown',
       packages=find_packages(),
 
       scripts=['create_parts.py', 'drop_parts.py'],
